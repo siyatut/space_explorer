@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
+import '../services/space_cache.dart';
 
 class NasaImagesScreen extends StatefulWidget {
   const NasaImagesScreen({super.key});
@@ -10,7 +11,9 @@ class NasaImagesScreen extends StatefulWidget {
   State<NasaImagesScreen> createState() => _NasaImagesScreenState();
 }
 
-class _NasaImagesScreenState extends State<NasaImagesScreen> {
+class _NasaImagesScreenState extends State<NasaImagesScreen> 
+   with AutomaticKeepAliveClientMixin {
+  
   final _controller = TextEditingController(text: 'nebula');
   Future<List<_NasaItem>>? _future;
 
@@ -21,7 +24,9 @@ class _NasaImagesScreenState extends State<NasaImagesScreen> {
   }
 
   Future<List<_NasaItem>> _search(String q) async {
-    final uri = Uri.parse('https://images-api.nasa.gov/search?q=$q&media_type=image');
+    final uri = Uri.parse(
+      'https://images-api.nasa.gov/search?q=$q&media_type=image',
+    );
     final res = await http.get(uri).timeout(const Duration(seconds: 15));
     if (res.statusCode != 200) {
       throw Exception('NASA Images ${res.statusCode}');
@@ -29,22 +34,29 @@ class _NasaImagesScreenState extends State<NasaImagesScreen> {
 
     final json = jsonDecode(res.body) as Map<String, dynamic>;
     final items = (json['collection']?['items'] as List?) ?? [];
-    // Берём названия/превью. Полноразмер можно подтянуть позже через assets-холдер,
-    // но для учебного этапа thumbnail уже отлично.
-    return items.map<_NasaItem>((e) {
-      final data = ((e['data'] as List?)?.cast<Map<String, dynamic>>().first) ?? {};
-      final links = ((e['links'] as List?)?.cast<Map<String, dynamic>>()) ?? const [];
-      final thumb = links.isNotEmpty ? links.first['href'] as String? : null;
-      return _NasaItem(
-        title: (data['title'] ?? '') as String,
-        description: (data['description'] ?? '') as String? ?? '',
-        previewUrl: thumb ?? '',
-      );
-    }).where((x) => x.previewUrl.isNotEmpty).toList();
+
+    return items
+        .map<_NasaItem>((e) {
+          final data =
+              ((e['data'] as List?)?.cast<Map<String, dynamic>>().first) ?? {};
+          final links =
+              ((e['links'] as List?)?.cast<Map<String, dynamic>>()) ?? const [];
+          final thumb = links.isNotEmpty
+              ? links.first['href'] as String?
+              : null;
+          return _NasaItem(
+            title: (data['title'] ?? '') as String,
+            description: (data['description'] ?? '') as String? ?? '',
+            previewUrl: thumb ?? '',
+          );
+        })
+        .where((x) => x.previewUrl.isNotEmpty)
+        .toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Column(
       children: [
         _SearchBar(
@@ -71,7 +83,9 @@ class _NasaImagesScreenState extends State<NasaImagesScreen> {
               return GridView.builder(
                 padding: const EdgeInsets.all(12),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12,
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
                 ),
                 itemCount: list.length,
                 itemBuilder: (_, i) => _ImageTile(item: list[i]),
@@ -80,15 +94,22 @@ class _NasaImagesScreenState extends State<NasaImagesScreen> {
           ),
         ),
       ],
-    );
+    ); 
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class _NasaItem {
   final String title;
   final String description;
   final String previewUrl;
-  _NasaItem({required this.title, required this.description, required this.previewUrl});
+  _NasaItem({
+    required this.title,
+    required this.description,
+    required this.previewUrl,
+  });
 }
 
 class _ImageTile extends StatelessWidget {
@@ -102,13 +123,23 @@ class _ImageTile extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          CachedNetworkImage(imageUrl: item.previewUrl, fit: BoxFit.cover),
+          CachedNetworkImage(
+            imageUrl: item.previewUrl,
+            cacheManager: SpaceCache.images,
+            cacheKey: Uri.parse(item.previewUrl).pathSegments.last,
+            fit: BoxFit.cover,
+            fadeInDuration: Duration.zero,
+            placeholder: (_, __) => const SizedBox.shrink(),
+            errorWidget: (_, __, ___) =>
+                const Icon(Icons.broken_image_outlined, color: Colors.white54),
+          ),
           Container(
             alignment: Alignment.bottomLeft,
             padding: const EdgeInsets.all(8),
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.bottomCenter, end: Alignment.topCenter,
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
                 colors: [Colors.black87, Colors.transparent],
               ),
             ),
@@ -143,7 +174,10 @@ class _SearchBar extends StatelessWidget {
           filled: true,
           fillColor: Colors.white12,
           prefixIcon: const Icon(Icons.search),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide.none,
+          ),
         ),
       ),
     );
@@ -158,7 +192,10 @@ class _Error extends StatelessWidget {
     return Center(
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(
+          color: Colors.red.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: Text(text, style: const TextStyle(color: Colors.redAccent)),
       ),
     );
