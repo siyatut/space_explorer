@@ -132,8 +132,8 @@ class _ImageTile extends StatelessWidget {
             cacheKey: Uri.parse(item.previewUrl).pathSegments.last,
             fit: BoxFit.cover,
             fadeInDuration: Duration.zero,
-            placeholder: (_, __) => const SizedBox.shrink(),
-            errorWidget: (_, __, ___) =>
+            placeholder: (_, url) => const SizedBox.shrink(),
+            errorWidget: (_, url, err) =>
                 const Icon(Icons.broken_image_outlined, color: Colors.white54),
           ),
           Container(
@@ -196,7 +196,7 @@ class _Error extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.red.withOpacity(0.1),
+          color: Colors.red.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(text, style: const TextStyle(color: Colors.redAccent)),

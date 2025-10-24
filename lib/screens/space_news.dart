@@ -13,8 +13,8 @@ class SpaceNewsScreen extends StatefulWidget {
   State<SpaceNewsScreen> createState() => _SpaceNewsScreenState();
 }
 
-class _SpaceNewsScreenState extends State<SpaceNewsScreen> 
-with AutomaticKeepAliveClientMixin {
+class _SpaceNewsScreenState extends State<SpaceNewsScreen>
+    with AutomaticKeepAliveClientMixin {
   late Future<List<_Article>> _future = _fetch();
 
   Future<List<_Article>> _fetch() async {
@@ -57,8 +57,9 @@ with AutomaticKeepAliveClientMixin {
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 100),
             itemCount: list.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (_, i) => _NewsCard(article: list[i], onOpen: _open),
+            separatorBuilder: (context, index) => const SizedBox(height: 12),
+            itemBuilder: (context, i) =>
+                _NewsCard(article: list[i], onOpen: _open),
           );
         },
       ),
@@ -70,7 +71,6 @@ with AutomaticKeepAliveClientMixin {
 }
 
 class _Article {
-
   _Article({
     required this.title,
     required this.summary,
@@ -123,8 +123,8 @@ class _NewsCard extends StatelessWidget {
                   cacheKey: Uri.parse(article.imageUrl!).pathSegments.last,
                   fit: BoxFit.cover,
                   fadeInDuration: Duration.zero, // ← без fade-in
-                  placeholder: (_, __) => const SizedBox.shrink(),
-                  errorWidget: (_, __, ___) => const Icon(
+                  placeholder: (_, url) => const SizedBox.shrink(),
+                  errorWidget: (_, url, err) => const Icon(
                     Icons.broken_image_outlined,
                     color: Colors.white54,
                   ),
