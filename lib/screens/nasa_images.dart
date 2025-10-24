@@ -1,7 +1,9 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
+
 import '../services/space_cache.dart';
 
 class NasaImagesScreen extends StatefulWidget {
@@ -11,9 +13,8 @@ class NasaImagesScreen extends StatefulWidget {
   State<NasaImagesScreen> createState() => _NasaImagesScreenState();
 }
 
-class _NasaImagesScreenState extends State<NasaImagesScreen> 
-   with AutomaticKeepAliveClientMixin {
-  
+class _NasaImagesScreenState extends State<NasaImagesScreen>
+    with AutomaticKeepAliveClientMixin {
   final _controller = TextEditingController(text: 'nebula');
   Future<List<_NasaItem>>? _future;
 
@@ -63,7 +64,9 @@ class _NasaImagesScreenState extends State<NasaImagesScreen>
           controller: _controller,
           onSubmit: (q) {
             if (q.trim().isEmpty) return;
-            setState(() => _future = _search(q.trim()));
+            setState(() {
+              _future = _search(q.trim());
+            });
           },
         ),
         Expanded(
@@ -94,7 +97,7 @@ class _NasaImagesScreenState extends State<NasaImagesScreen>
           ),
         ),
       ],
-    ); 
+    );
   }
 
   @override

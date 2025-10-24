@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'screens/nasa_images.dart';
 import 'screens/space_news.dart';
 
@@ -43,6 +44,8 @@ class _RootTabsState extends State<_RootTabs> {
     SpaceNewsScreen(),
   ];
 
+  final _bucket = PageStorageBucket();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +53,13 @@ class _RootTabsState extends State<_RootTabs> {
         title: Text(_index == 0 ? 'NASA Images' : 'Space News'),
         centerTitle: true,
       ),
-      body: _pages[_index],
+      body: PageStorage(                          
+        bucket: _bucket,
+        child: IndexedStack(                         
+          index: _index,
+          children: _pages,
+        ),
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
