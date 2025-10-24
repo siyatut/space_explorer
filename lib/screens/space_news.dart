@@ -1,8 +1,10 @@
 import 'dart:convert';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../services/space_cache.dart';
 
 class SpaceNewsScreen extends StatefulWidget {
@@ -68,12 +70,6 @@ with AutomaticKeepAliveClientMixin {
 }
 
 class _Article {
-  final String title;
-  final String summary;
-  final String site;
-  final DateTime publishedAt;
-  final String url;
-  final String? imageUrl;
 
   _Article({
     required this.title,
@@ -92,12 +88,18 @@ class _Article {
     url: j['url'] ?? '',
     imageUrl: j['image_url'] as String?,
   );
+  final String title;
+  final String summary;
+  final String site;
+  final DateTime publishedAt;
+  final String url;
+  final String? imageUrl;
 }
 
 class _NewsCard extends StatelessWidget {
+  const _NewsCard({required this.article, required this.onOpen});
   final _Article article;
   final void Function(String url) onOpen;
-  const _NewsCard({required this.article, required this.onOpen});
 
   @override
   Widget build(BuildContext context) {

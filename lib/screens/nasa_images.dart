@@ -1,8 +1,8 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:cached_network_image/cached_network_image.dart';
 
 import '../services/space_cache.dart';
 
@@ -105,19 +105,19 @@ class _NasaImagesScreenState extends State<NasaImagesScreen>
 }
 
 class _NasaItem {
-  final String title;
-  final String description;
-  final String previewUrl;
   _NasaItem({
     required this.title,
     required this.description,
     required this.previewUrl,
   });
+  final String title;
+  final String description;
+  final String previewUrl;
 }
 
 class _ImageTile extends StatelessWidget {
-  final _NasaItem item;
   const _ImageTile({required this.item});
+  final _NasaItem item;
 
   @override
   Widget build(BuildContext context) {
@@ -160,9 +160,9 @@ class _ImageTile extends StatelessWidget {
 }
 
 class _SearchBar extends StatelessWidget {
+  const _SearchBar({required this.controller, required this.onSubmit});
   final TextEditingController controller;
   final ValueChanged<String> onSubmit;
-  const _SearchBar({required this.controller, required this.onSubmit});
 
   @override
   Widget build(BuildContext context) {
@@ -188,8 +188,8 @@ class _SearchBar extends StatelessWidget {
 }
 
 class _Error extends StatelessWidget {
-  final String text;
   const _Error({required this.text});
+  final String text;
   @override
   Widget build(BuildContext context) {
     return Center(

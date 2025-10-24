@@ -32,7 +32,7 @@ class SpaceExplorerApp extends StatelessWidget {
 }
 
 class _RootTabs extends StatefulWidget {
-  const _RootTabs({super.key});
+  const _RootTabs();
   @override
   State<_RootTabs> createState() => _RootTabsState();
 }
