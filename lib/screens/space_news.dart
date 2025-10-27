@@ -123,8 +123,8 @@ class _NewsCard extends StatelessWidget {
                   cacheKey: Uri.parse(article.imageUrl!).pathSegments.last,
                   fit: BoxFit.cover,
                   fadeInDuration: Duration.zero, // ← без fade-in
-                  placeholder: (_, url) => const SizedBox.shrink(),
-                  errorWidget: (_, url, err) => const Icon(
+                  placeholder: (context, url) => const SizedBox.shrink(),
+                  errorWidget: (context, url, err) => const Icon(
                     Icons.broken_image_outlined,
                     color: Colors.white54,
                   ),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../services/space_cache.dart';
+import 'fullscreen_image.dart';
 
 class NasaImagesScreen extends StatefulWidget {
   const NasaImagesScreen({super.key});
@@ -121,36 +122,64 @@ class _ImageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = CachedNetworkImageProvider(
+      item.previewUrl,
+      cacheManager: SpaceCache.images,
+      cacheKey: Uri.parse(item.previewUrl).pathSegments.last,
+    );
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: Stack(
         fit: StackFit.expand,
         children: [
-          CachedNetworkImage(
-            imageUrl: item.previewUrl,
-            cacheManager: SpaceCache.images,
-            cacheKey: Uri.parse(item.previewUrl).pathSegments.last,
-            fit: BoxFit.cover,
-            fadeInDuration: Duration.zero,
-            placeholder: (_, url) => const SizedBox.shrink(),
-            errorWidget: (_, url, err) =>
-                const Icon(Icons.broken_image_outlined, color: Colors.white54),
-          ),
-          Container(
-            alignment: Alignment.bottomLeft,
-            padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: [Colors.black87, Colors.transparent],
+          Hero(
+            tag: item.previewUrl,
+            child: CachedNetworkImage(
+              imageUrl: item.previewUrl,
+              cacheManager: SpaceCache.images,
+              cacheKey: Uri.parse(item.previewUrl).pathSegments.last,
+              fit: BoxFit.cover,
+              fadeInDuration: Duration.zero,
+              placeholder: (context, url) => const SizedBox.shrink(),
+              errorWidget: (context, url, err) => const Icon(
+                Icons.broken_image_outlined,
+                color: Colors.white54,
               ),
             ),
-            child: Text(
-              item.title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => FullscreenImage(
+                      image: provider,
+                      heroTag: item.previewUrl,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [Colors.black87, Colors.transparent],
+                ),
+              ),
+              child: Text(
+                item.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
             ),
           ),
         ],
