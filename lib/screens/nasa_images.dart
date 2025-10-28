@@ -16,19 +16,14 @@ class NasaImagesScreen extends StatefulWidget {
 
 class _NasaImagesScreenState extends State<NasaImagesScreen>
     with AutomaticKeepAliveClientMixin {
-  final _controller = TextEditingController(text: 'nebula');
+  final _controller = TextEditingController();
   Future<List<_NasaItem>>? _future;
 
-  @override
-  void initState() {
-    super.initState();
-    _future = _search('nebula');
-  }
-
   Future<List<_NasaItem>> _search(String q) async {
-    final uri = Uri.parse(
-      'https://images-api.nasa.gov/search?q=$q&media_type=image',
-    );
+    final uri = Uri.https('images-api.nasa.gov', '/search', {
+      'q': q,
+      'media_type': 'image',
+    });
     final res = await http.get(uri).timeout(const Duration(seconds: 15));
     if (res.statusCode != 200) {
       throw Exception('NASA Images ${res.statusCode}');
@@ -64,10 +59,18 @@ class _NasaImagesScreenState extends State<NasaImagesScreen>
         _SearchBar(
           controller: _controller,
           onSubmit: (q) {
-            if (q.trim().isEmpty) return;
+            final query = q.trim().isEmpty ? 'moon' : q.trim();
             setState(() {
-              _future = _search(q.trim());
+              _future = _search(query);
             });
+            FocusScope.of(context).unfocus();
+          },
+          onClear: () {
+            setState(() {
+              _controller.clear();
+              _future = null;
+            });
+            FocusScope.of(context).unfocus();
           },
         ),
         Expanded(
@@ -189,28 +192,51 @@ class _ImageTile extends StatelessWidget {
 }
 
 class _SearchBar extends StatelessWidget {
-  const _SearchBar({required this.controller, required this.onSubmit});
+  const _SearchBar({
+    required this.controller,
+    required this.onSubmit,
+    required this.onClear,
+  });
+
   final TextEditingController controller;
   final ValueChanged<String> onSubmit;
+  final VoidCallback onClear;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-      child: TextField(
-        controller: controller,
-        textInputAction: TextInputAction.search,
-        onSubmitted: onSubmit,
-        decoration: InputDecoration(
-          hintText: 'Поиск по NASA Images… (e.g. nebula, galaxy, moon)',
-          filled: true,
-          fillColor: Colors.white12,
-          prefixIcon: const Icon(Icons.search),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide.none,
-          ),
-        ),
+      child: ValueListenableBuilder<TextEditingValue>(
+        valueListenable: controller,
+        builder: (context, value, _) {
+          final hasText = value.text.isNotEmpty;
+          return TextField(
+            controller: controller,
+            textInputAction: TextInputAction.search,
+            onSubmitted: (q) {
+              if (q.trim().isEmpty) return;
+              onSubmit(q.trim());
+              FocusScope.of(context).unfocus();
+            },
+            decoration: InputDecoration(
+              hintText: 'Поиск по NASA Images',
+              filled: true,
+              fillColor: Colors.white12,
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: hasText
+                  ? IconButton(
+                      icon: const Icon(Icons.close),
+                      tooltip: 'Сбросить',
+                      onPressed: onClear,
+                    )
+                  : null,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          );
+        },
       ),
     );
   }
