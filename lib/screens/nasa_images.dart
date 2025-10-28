@@ -55,72 +55,78 @@ class _NasaImagesScreenState extends State<NasaImagesScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Column(
-      children: [
-        _SearchBar(
-          controller: _controller,
-          onSubmit: (q) {
-            final query = q.trim().isEmpty ? 'moon' : q.trim();
-            setState(() {
-              _future = _search(query);
-            });
-            FocusScope.of(context).unfocus();
-          },
-          onClear: () {
-            setState(() {
-              _controller.clear();
-              _future = null;
-            });
-            FocusScope.of(context).unfocus();
-          },
-        ),
-        Expanded(
-          child: FutureBuilder<List<_NasaItem>>(
-            future: _future,
-            builder: (context, snapshot) {
-              // Обрабатываем состояние, когда future ещё не задан (ConnectionState.none)
-              if (snapshot.connectionState == ConnectionState.none) {
-                return const Center(
-                  child: Text('Введите запрос и нажмите поиск'),
-                );
-              }
-
-              // Явная обработка загрузки
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              // Понятный вывод ошибки
-              if (snapshot.hasError) {
-                return AppError(text: 'Ошибка: ${snapshot.error}');
-              }
-
-              // Защита от null и отсутствия данных
-              final data = snapshot.data;
-              if (data == null) {
-                return const AppError(text: 'Нет данных');
-              }
-
-              // Пустой результат
-              if (data.isEmpty) {
-                return const AppError(text: 'Ничего не найдено');
-              }
-
-              // Используем уже проверенный список
-              return GridView.builder(
-                padding: const EdgeInsets.all(12),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                ),
-                itemCount: data.length,
-                itemBuilder: (_, i) => _ImageTile(item: data[i]),
-              );
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque, // ловим тап и по «пустым» зонам
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Column(
+        children: [
+          _SearchBar(
+            controller: _controller,
+            onSubmit: (q) {
+              final query = q.trim().isEmpty ? 'moon' : q.trim();
+              setState(() {
+                _future = _search(query);
+              });
+              FocusScope.of(context).unfocus();
+            },
+            onClear: () {
+              setState(() {
+                _controller.clear();
+                _future = null;
+              });
+              FocusScope.of(context).unfocus();
             },
           ),
-        ),
-      ],
+          Expanded(
+            child: FutureBuilder<List<_NasaItem>>(
+              future: _future,
+              builder: (context, snapshot) {
+                // Обрабатываем состояние, когда future ещё не задан (ConnectionState.none)
+                if (snapshot.connectionState == ConnectionState.none) {
+                  return const Center(
+                    child: Text('Введите запрос и нажмите поиск'),
+                  );
+                }
+
+                // Явная обработка загрузки
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                // Понятный вывод ошибки
+                if (snapshot.hasError) {
+                  return AppError(text: 'Ошибка: ${snapshot.error}');
+                }
+
+                // Защита от null и отсутствия данных
+                final data = snapshot.data;
+                if (data == null) {
+                  return const AppError(text: 'Нет данных');
+                }
+
+                // Пустой результат
+                if (data.isEmpty) {
+                  return const AppError(text: 'Ничего не найдено');
+                }
+
+                // Используем уже проверенный список
+                return GridView.builder(
+                  padding: const EdgeInsets.all(12),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                  ),
+                  itemCount: data.length,
+                  itemBuilder: (_, i) => _ImageTile(item: data[i]),
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 

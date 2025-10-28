@@ -39,35 +39,36 @@ class _RootTabs extends StatefulWidget {
 
 class _RootTabsState extends State<_RootTabs> {
   int _index = 0;
-  final _pages = const [
-    NasaImagesScreen(),
-    SpaceNewsScreen(),
-  ];
+  final _pages = const [NasaImagesScreen(), SpaceNewsScreen()];
 
   final _bucket = PageStorageBucket();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_index == 0 ? 'NASA Images' : 'Space News'),
-        centerTitle: true,
-      ),
-      body: PageStorage(                          
-        bucket: _bucket,
-        child: IndexedStack(                         
-          index: _index,
-          children: _pages,
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque, // чтобы ловить клики по пустым зонам
+      onTap: () => FocusScope.of(context).unfocus(), // скрывает клавиатуру
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_index == 0 ? 'NASA Images' : 'Space News'),
+          centerTitle: true,
         ),
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.photo_library_outlined), label: 'Images'),
-          NavigationDestination(icon: Icon(Icons.newspaper), label: 'News'),
-        ],
+        body: PageStorage(
+          bucket: _bucket,
+          child: IndexedStack(index: _index, children: _pages),
+        ),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: _index,
+          onDestinationSelected: (i) => setState(() => _index = i),
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.photo_library_outlined),
+              label: 'Images',
+            ),
+            NavigationDestination(icon: Icon(Icons.newspaper), label: 'News'),
+          ],
+        ),
       ),
     );
   }
