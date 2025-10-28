@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../services/space_cache.dart';
+import '../widgets/app_error.dart';
 
 class SpaceNewsScreen extends StatefulWidget {
   const SpaceNewsScreen({super.key});
@@ -40,26 +41,31 @@ class _SpaceNewsScreenState extends State<SpaceNewsScreen>
       onRefresh: () async => setState(() => _future = _fetch()),
       child: FutureBuilder<List<_Article>>(
         future: _future,
-        builder: (c, s) {
-          if (s.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (s.hasError) {
-            return Center(
-              child: Text(
-                'Ошибка: ${s.error}',
-                style: const TextStyle(color: Colors.redAccent),
-              ),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.none) {
+            return const Center(
+              child: Text('Потяните вниз для загрузки новостей'),
             );
           }
-          final list = s.data!;
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return AppError(text: 'Ошибка: ${snapshot.error}');
+          }
+          final data = snapshot.data;
+          if (data == null) {
+            return const AppError(text: 'Нет данных');
+          }
+          if (data.isEmpty) {
+            return const AppError(text: 'Новостей пока нет');
+          }
           return ListView.separated(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 100),
-            itemCount: list.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 12),
-            itemBuilder: (context, i) =>
-                _NewsCard(article: list[i], onOpen: _open),
+            itemCount: data.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (_, i) => _NewsCard(article: data[i], onOpen: _open),
           );
         },
       ),

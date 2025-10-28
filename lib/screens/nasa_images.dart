@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../services/space_cache.dart';
+import '../widgets/app_error.dart';
 import 'fullscreen_image.dart';
 
 class NasaImagesScreen extends StatefulWidget {
@@ -76,17 +77,36 @@ class _NasaImagesScreenState extends State<NasaImagesScreen>
         Expanded(
           child: FutureBuilder<List<_NasaItem>>(
             future: _future,
-            builder: (c, s) {
-              if (s.connectionState == ConnectionState.waiting) {
+            builder: (context, snapshot) {
+              // Обрабатываем состояние, когда future ещё не задан (ConnectionState.none)
+              if (snapshot.connectionState == ConnectionState.none) {
+                return const Center(
+                  child: Text('Введите запрос и нажмите поиск'),
+                );
+              }
+
+              // Явная обработка загрузки
+              if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
-              if (s.hasError) {
-                return _Error(text: 'Ошибка: ${s.error}');
+
+              // Понятный вывод ошибки
+              if (snapshot.hasError) {
+                return AppError(text: 'Ошибка: ${snapshot.error}');
               }
-              final list = s.data!;
-              if (list.isEmpty) {
-                return const _Error(text: 'Ничего не найдено');
+
+              // Защита от null и отсутствия данных
+              final data = snapshot.data;
+              if (data == null) {
+                return const AppError(text: 'Нет данных');
               }
+
+              // Пустой результат
+              if (data.isEmpty) {
+                return const AppError(text: 'Ничего не найдено');
+              }
+
+              // Используем уже проверенный список
               return GridView.builder(
                 padding: const EdgeInsets.all(12),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -94,8 +114,8 @@ class _NasaImagesScreenState extends State<NasaImagesScreen>
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
                 ),
-                itemCount: list.length,
-                itemBuilder: (_, i) => _ImageTile(item: list[i]),
+                itemCount: data.length,
+                itemBuilder: (_, i) => _ImageTile(item: data[i]),
               );
             },
           ),
@@ -237,24 +257,6 @@ class _SearchBar extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-class _Error extends StatelessWidget {
-  const _Error({required this.text});
-  final String text;
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.red.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(text, style: const TextStyle(color: Colors.redAccent)),
       ),
     );
   }
