@@ -10,6 +10,11 @@ class FullscreenImage extends StatelessWidget {
   final ImageProvider image;
   final String heroTag;
 
+  void _close(BuildContext context) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,7 +23,7 @@ class FullscreenImage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => Navigator.of(context).maybePop(),
+          onPressed: () => _close(context),
         ),
       ),
       body: Center(

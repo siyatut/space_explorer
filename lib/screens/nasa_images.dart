@@ -56,7 +56,7 @@ class _NasaImagesScreenState extends State<NasaImagesScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return GestureDetector(
-      behavior: HitTestBehavior.opaque, // ловим тап и по «пустым» зонам
+      behavior: HitTestBehavior.opaque,
       onTap: () => FocusScope.of(context).unfocus(),
       child: Column(
         children: [
