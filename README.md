@@ -1,16 +1,33 @@
-# space_explorer
+# 🪐 space_explorer
 
-A new Flutter project.
+#### 📝 **Description**
 
-## Getting Started
+A Flutter app for space enthusiasts that brings together NASA’s image archive and the latest spaceflight news.
+Search, explore, and dive into cosmic discoveries — all in one elegant interface.
 
-This project is a starting point for a Flutter application.
+#### 🛠 **Features**
 
-A few resources to get you started if this is your first Flutter project:
+* Search NASA’s public image library
+* View full-screen images with smooth Hero animations
+* Read the latest spaceflight news
+* Offline image caching for faster loading
+* Persistent screen state and keyboard dismissal
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+#### ⚙️ **Tech Stack**
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+* Flutter (Material 3, Dark theme)
+* REST API (NASA Images, Spaceflight News API)
+* Cached Network Image
+* Flutter Cache Manager
+* SharedPreferences
+* Hero animations
+
+#### 📷 **Screenshots**
+
+**iOS**:
+
+![image](https://github.com/user-attachments/assets/e2d6175f-873d-4f9a-91de-5056cfd26f18)
+
+**Androind**:
+
+![image-2](https://github.com/user-attachments/assets/cf1197de-2d47-4b02-879a-c9dafba38762)
